@@ -16,6 +16,7 @@ class RssLambdaDdbSocialshareStack(Stack):
         table = dynamodb.Table(
             self,
             "Posts",
+            table_name="Posts",
             partition_key=dynamodb.Attribute(
                 name="PostId", type=dynamodb.AttributeType.STRING
             ),
