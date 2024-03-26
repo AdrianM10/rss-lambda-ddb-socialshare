@@ -47,6 +47,7 @@ def extract_post_id_from_guid(guid):
     else:
         return None
 
+
 def update_ddb(posts):
     """Update DynamoDB Table with post data"""
 

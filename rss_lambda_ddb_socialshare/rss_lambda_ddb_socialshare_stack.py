@@ -5,6 +5,8 @@ from aws_cdk import (
     aws_dynamodb as dynamodb,
     aws_lambda as _lambda,
     aws_lambda_python_alpha as _alambda,
+    aws_events as events,
+    aws_events_targets as targets,
 )
 from constructs import Construct
 
@@ -40,8 +42,19 @@ class RssLambdaDdbSocialshareStack(Stack):
             timeout=Duration.seconds(300),
         )
 
-        # Permissions for RSSLambdaDDBFunc to access DynamoDB
+        # Permissions for 'RSSLambdaDDBFunc' to access DynamoDB
         table.grant_full_access(lambda_ddb_function)
 
-        
+        # Schedule 'RSSLambdaDDBFunc' to run every 10 minutes
+        rule = events.Rule(
+            self,
+            "ScheduleRule",
+            schedule=events.Schedule.cron(
+                minute="0/10", hour="*", month="*", week_day="*", year="*"
+            ),
+            description="Invoke Lambda function every 10 minutes"
+        )
+
+        # Add 'RSSLambdaDDBFunc' as target to schedule rule
+        rule.add_target(targets.LambdaFunction(lambda_ddb_function))
 
