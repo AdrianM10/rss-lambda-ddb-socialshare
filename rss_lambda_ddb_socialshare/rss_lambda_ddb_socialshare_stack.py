@@ -29,6 +29,7 @@ class RssLambdaDdbSocialshareStack(Stack):
             read_capacity=1,
             write_capacity=1,
             removal_policy=RemovalPolicy.DESTROY,
+            stream=dynamodb.StreamViewType.NEW_IMAGE,
         )
 
         # Create Lambda Function that creates records in DynamoDB
@@ -67,11 +68,14 @@ class RssLambdaDdbSocialshareStack(Stack):
             entry="./lambda_x_share_func",
             function_name="LambdaDDBStreamShare",
             description="SHare post data using DynamoDB Streams to X",
-            runtime=_lambda.Runtime.Python_3_12,
+            runtime=_lambda.Runtime.PYTHON_3_12,
             index="lambda_handler.py",
             handler="lambda_handler",
             timeout=Duration.seconds(600),
         )
+
+        # Permissions for LambdaShareFunc to read DynamoDB stream
+        table.grant_read_data(lambda_share_function)
 
         # Permissions for LambdaShareFunc to access SSM Parameter Store
         ssm_policy_statement = iam.PolicyStatement(
@@ -90,5 +94,4 @@ class RssLambdaDdbSocialshareStack(Stack):
             )
         )
 
-        # Permissions for LambdaShareFunc to read DynamoDB stream
-        table.grant_read_data(lambda_share_function)
+    
