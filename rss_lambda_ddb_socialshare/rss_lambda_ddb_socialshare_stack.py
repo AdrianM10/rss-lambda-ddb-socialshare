@@ -7,6 +7,8 @@ from aws_cdk import (
     aws_lambda_python_alpha as _alambda,
     aws_events as events,
     aws_events_targets as targets,
+    aws_iam as iam,
+    aws_lambda_event_sources as lambda_event_sources,
 )
 from constructs import Construct
 
@@ -52,9 +54,41 @@ class RssLambdaDdbSocialshareStack(Stack):
             schedule=events.Schedule.cron(
                 minute="0/10", hour="*", month="*", week_day="*", year="*"
             ),
-            description="Invoke Lambda function every 10 minutes"
+            description="Invoke Lambda function every 10 minutes",
         )
 
         # Add 'RSSLambdaDDBFunc' as target to schedule rule
         rule.add_target(targets.LambdaFunction(lambda_ddb_function))
 
+        # Create Lambda function share Post(s) on X
+        lambda_share_function = _alambda.PythonFunction(
+            self,
+            "LambdaShareFunc",
+            entry="./lambda_x_share_func",
+            function_name="LambdaDDBStreamShare",
+            description="SHare post data using DynamoDB Streams to X",
+            runtime=_lambda.Runtime.Python_3_12,
+            index="lambda_handler.py",
+            handler="lambda_handler",
+            timeout=Duration.seconds(600),
+        )
+
+        # Permissions for LambdaShareFunc to access SSM Parameter Store
+        ssm_policy_statement = iam.PolicyStatement(
+            actions=[
+                "ssm:GetParameter",
+            ],
+            resources=["*"],
+        )
+
+        lambda_share_function.role.add_to_policy(ssm_policy_statement)
+
+        # DynamoDB stream trigger to 'lambda_share_function'
+        lambda_share_function.add_event_source(
+            lambda_event_sources.DynamoEventSource(
+                table, batch_size=1, starting_position=_lambda.StartingPosition.LATEST
+            )
+        )
+
+        # Permissions for LambdaShareFunc to read DynamoDB stream
+        table.grant_read_data(lambda_share_function)
