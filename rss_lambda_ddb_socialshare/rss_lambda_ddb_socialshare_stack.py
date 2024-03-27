@@ -67,7 +67,7 @@ class RssLambdaDdbSocialshareStack(Stack):
             "LambdaShareFunc",
             entry="./lambda_x_share_func",
             function_name="LambdaDDBStreamShare",
-            description="SHare post data using DynamoDB Streams to X",
+            description="Share post data using DynamoDB Streams to X",
             runtime=_lambda.Runtime.PYTHON_3_12,
             index="lambda_handler.py",
             handler="lambda_handler",
