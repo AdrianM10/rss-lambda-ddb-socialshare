@@ -1,0 +1,48 @@
+name: Deploy RSS Lambda DDB Social Share
+
+on:
+    push:
+        branches: [main]
+
+env:
+    AWS_REGION: af-south-1
+
+permissions:
+    id-token: write
+    contents: read
+
+jobs:
+    Deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v5
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+
+            - name: Setup Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.13"
+                  cache: "pip"
+
+            - name: Install Python dependencies
+              working-directory: ./iac
+              run: |
+                  pip install -r requirements.txt
+
+            - name: Install AWS CDK
+              run: npm install -g aws-cdk
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v5.1.0
+              with:
+                  aws-region: ${{ env.AWS_REGION }}
+                  role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+                  role-session-name: GitHubActionsRSSLambdaDDBShareSSAssumeRole
+                  mask-aws-account-id: true
+            - name: Deploy CDK stack
+              working-directory: ./rss_lambda_ddb_socialshare
+              run: cdk deploy --require-approval never
