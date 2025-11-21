@@ -29,7 +29,7 @@ jobs:
                   cache: "pip"
 
             - name: Install Python dependencies
-              working-directory: ./iac
+              working-directory: ./
               run: |
                   pip install -r requirements.txt
 
