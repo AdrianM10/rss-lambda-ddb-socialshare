@@ -1,4 +1,4 @@
-name: Deploy RSS Lambda DDB Social Share
+name: Destroy RSS Lambda DDB Social Share CDK Stack
 
 on:
     workflow_dispatch:
