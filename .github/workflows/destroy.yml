@@ -50,6 +50,6 @@ jobs:
                   role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
                   role-session-name: GitHubActionsRSSLambdaDDBShareSSAssumeRole
                   mask-aws-account-id: true
-            - name: Deploy CDK stack
+            - name: Destroy CDK stack
               working-directory: ./
               run: cdk destroy --all --force
