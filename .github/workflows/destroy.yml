@@ -29,17 +29,6 @@ jobs:
               with:
                   node-version: 24
 
-            - name: Setup Python
-              uses: actions/setup-python@v6
-              with:
-                  python-version: "3.13"
-                  cache: "pip"
-
-            - name: Install Python dependencies
-              working-directory: ./
-              run: |
-                  pip install -r requirements.txt
-
             - name: Install AWS CDK
               run: npm install -g aws-cdk
 
@@ -52,4 +41,4 @@ jobs:
                   mask-aws-account-id: true
             - name: Deploy CDK stack
               working-directory: ./
-              run: cdk destroy --require-approval never
+              run: cdk destroy --all --force
